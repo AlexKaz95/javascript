@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+
+
+<div class="item-wrap">
+	<div class="item"></div>
+	<div class="item"></div>
+	<div class="item"></div>
+	<div class="item"></div>
+</div>
+<div class="item-wrap">
+	<div class="item"></div>
+	<div class="item"></div>
+	<div class="item"></div>
+	<div class="item"></div>
+</div>
+<div class="item-wrap">
+	<div class="item"></div>
+	<div class="item"></div>
+	<div class="item"></div>
+	<div class="item"></div>
+</div>
+<div class="item-wrap">
+	<div class="item"></div>
+	<div class="item"></div>
+	<div class="item"></div>
+	<div class="item"></div>
+</div>
+
+<style>
+	.item-wrap{
+		display: -webkit-flex;
+		display: -moz-flex;
+		display: -ms-flex;
+		display: -o-flex;
+		display: flex;
+	}
+	.item{
+		width: 50px;
+		height: 50px;
+		background-color: #000;
+		margin: 5px;
+		transform: rotateZ(90deg);
+
+	}
+</style>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(event) { 
+  
+/*
+	function Squares(color) {
+		this.color = color;
+	}*/
+
+
+/*	for (var i = 0; i < 8; i++) {
+		square[i] = new Squares('rgb('+c1+','+c2+','+c2+')');
+	}*/
+
+	let state = 0;
+	let colors = [];
+	function number(elem) {
+		let i = 0;
+		let j = 0;
+		for (let parent of all_parents){
+			if(elem.parentNode == parent)
+				break;
+			i++;
+		}
+		for (let child of elem.parentElement.children){
+			if(child == elem)
+				break;
+			j++;
+		}
+		return 4*i+j
+	}
+	let square = ['red', 'blue', 'yellow', 'green', 'purple','brown', 'gray', 'black'];
+	let square_fin = [];
+	let is_clickable = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
+	square_fin = square_fin.concat(square, square);
+	let items = document.getElementsByClassName('item');
+	let all_parents = document.getElementsByClassName('item-wrap');
+	let shuffled_square_fin = square_fin.sort(() => Math.random() - 0.5);
+	let counter = 0;
+	for (let item of items){
+		item.style.background =  shuffled_square_fin[counter++];
+		setTimeout(function() {
+			item.style.background = "#FFF";
+			item.style.border = "1px solid #000";
+			item.onclick = function getColor(){
+				if (is_clickable[number(this)]) {
+					if(state < 2){
+						colors[state] = number(this);;
+						item.style.background = shuffled_square_fin[colors[state]];
+						state++;
+					}
+					if(colors.length == 2){
+						if (shuffled_square_fin[colors[0]] == shuffled_square_fin[colors[1]]) {
+							is_clickable[colors[0]] = is_clickable [colors[1]] = false;
+
+						}
+						else{
+							setTimeout(function(colors){ return ()=>{
+								items[colors[0]].style.background = '#fff'; 
+								items[colors[1]].style.background = '#fff';
+							}}(colors), 500);
+						}
+						state = 0;
+						colors = [];
+					}
+				}
+			}
+
+		}, 5000);
+
+	}
+
+
+
+});
+/*
+
+	создать объект. 
+
+	1. Сделать сетку из изображений
+	2. Создать массив объектов с позициями X Y (смещениями)
+	3. Создать дубликат массива, склеить
+	2. Рандомно отсортировать их
+	3. В цикле присвоить каждому элементу в сетке страницы свой объект.
+	4. Вывести картинку на странице.
+	5. Получить позиции X и Y объектов на который был произведен клик. 
+	6. Сравнить полученные позиции. Если равны = sucsess, остаются открытыми. Если не равны = перевернуть назад.
+	на стороне html и css.  После сортировки каждому элементу в разметке присваивается positionX и positionY. 
+
+*/
+
+
+
+</script>
+
+</body>
+</html>
