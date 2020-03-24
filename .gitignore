@@ -7,4 +7,6 @@
 # Ignore project progressBar
 /progressBar/
 
+*.json
+
 
