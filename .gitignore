@@ -1,0 +1,10 @@
+# Lines starting with '#' are considered comments.
+
+# Ignore img folders
+*/img/
+*/favicon/
+
+# Ignore project progressBar
+/progressBar/
+
+
