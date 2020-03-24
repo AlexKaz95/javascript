@@ -75,12 +75,18 @@ function renderCheap (data, date) {
 }
 
 function renderCheapDay (cheapTicket){
+    cheapestTicket.insertAdjacentHTML('afterbegin', '<h2>Самый дешевый билет на выбранную дату</h2>');
     cheapTicket.sort((a,b) => a.value - b.value);
     const ticket = createCard (cheapTicket[0]);
     cheapestTicket.append(ticket);
 }
 
 function renderCheapTicket (cheapTicket){
+    cheapestTicket.insertAdjacentHTML('afterbegin', '<h2>Дешевые билеты на другие даты</h2>');
+    for (let i = 0; i < cheapTicket.length && i < 10; i++){
+        const ticket = createCard(cheapTicket[i]);
+        otherCheapTickets.append(ticket);
+    }
 
 }
 
@@ -100,6 +106,14 @@ function getNumberOfChanges(num) {
     }
 }
 
+function getLinkAviasales (data) {
+    let day = new Date(data.depart_date).getDate();
+    let month = new Date(data.depart_date).getMonth()+1;
+    if(day < 10) day = '0' + day;
+    if(month < 10) month = '0' + month;
+   return `https://www.aviasales.ru/search/${data.origin}${day}${month}${data.destination}1`;
+}
+
 function createCard (data) {
     const ticket = document.createElement('article');
     ticket.classList.add('ticket');
@@ -108,11 +122,10 @@ function createCard (data) {
     console.log(data);
     if (data) {
         deep = `
-        <h2>Самый дешевый билет на выбранную дату</h2>
         <h3 class="agent">${data.gate}</h3>
         <div class="ticket__wrapper">
             <div class="left-side">
-                <a href="${data.gate}" class="button button__buy">Купить
+                <a href="${getLinkAviasales(data)}" target="_blank" class="button button__buy">Купить
                     за ${data.value}₽</a>
             </div>
             <div class="right-side">
