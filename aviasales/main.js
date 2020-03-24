@@ -7,7 +7,9 @@ const formSearch = document.querySelector('.form-search'),
     dropdownCitiesFrom = document.querySelector('.dropdown__cities-from'),
     inputCitiesTo = document.querySelector('.input__cities-to'),
     dropdownCitiesTo = document.querySelector('.dropdown__cities-to'),
-    inputDateDepart = document.querySelector('.input__date-depart');
+    inputDateDepart = document.querySelector('.input__date-depart'),
+    cheapestTicket = document.getElementById('cheapest-ticket'),
+    otherCheapTickets = document.getElementById('other-cheap-tickets');
 
 const citiesApi = 'http://api.travelpayouts.com/data/ru/cities.json',
     proxy = 'https://cors-anywhere.herokuapp.com/',
@@ -43,7 +45,7 @@ function showCities (input, list) {
 
     const filterCities = cities.filter((item) => {
             const lowCaseItem = item.name.toLowerCase(); 
-            return lowCaseItem.includes(input.value.toLowerCase());
+            return lowCaseItem.startsWith(input.value.toLowerCase());
     });
     
     filterCities.forEach((item) => {
@@ -73,11 +75,69 @@ function renderCheap (data, date) {
 }
 
 function renderCheapDay (cheapTicket){
-
+    cheapTicket.sort((a,b) => a.value - b.value);
+    const ticket = createCard (cheapTicket[0]);
+    cheapestTicket.append(ticket);
 }
 
 function renderCheapTicket (cheapTicket){
 
+}
+
+function getDateDepart (date) {
+    return new Date(date).toLocaleString('ru', {year: 'numeric', month: 'long', day: 'numeric'});
+}
+
+function getCitiesName (code) {
+    return cities.find((item) => item.code === code).name;
+}
+
+function getNumberOfChanges(num) {
+    if (num) {
+        return num === 1 ? 'Одна пересадка' : 'Две пересадки';
+    } else {
+        return 'Без пересадок';
+    }
+}
+
+function createCard (data) {
+    const ticket = document.createElement('article');
+    ticket.classList.add('ticket');
+
+    let deep = '';
+    console.log(data);
+    if (data) {
+        deep = `
+        <h2>Самый дешевый билет на выбранную дату</h2>
+        <h3 class="agent">${data.gate}</h3>
+        <div class="ticket__wrapper">
+            <div class="left-side">
+                <a href="${data.gate}" class="button button__buy">Купить
+                    за ${data.value}₽</a>
+            </div>
+            <div class="right-side">
+                <div class="block-left">
+                    <div class="city__from">Вылет из города
+                        <span class="city__name">${getCitiesName(data.origin)}</span>
+                    </div>
+                    <div class="date">${getDateDepart(data.depart_date)}</div>
+                </div>
+        
+                <div class="block-right">
+                    <div class="changes">${getNumberOfChanges(data.number_of_changes)}</div>
+                    <div class="city__to">Город назначения:
+                        <span class="city__name">${getCitiesName(data.destination)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    } else {
+        deep = '<h3>Билетов на текущую дату не нашлось...</h3>'
+    }
+
+    ticket.insertAdjacentHTML('afterbegin', deep);
+
+    return ticket;
 }
 
 //обработчики событий
@@ -100,23 +160,36 @@ dropdownCitiesTo.addEventListener('click', (event) => {
 
 formSearch.addEventListener('submit', (event) => {
     event.preventDefault();
+
+    cheapestTicket.textContent = '';
+
     const formData = {
-        from: cities.find(item => inputCitiesFrom.value === item.name).code,
-        to: cities.find(item => inputCitiesTo.value === item.name).code,
+        from: cities.find(item => inputCitiesFrom.value === item.name),
+        to: cities.find(item => inputCitiesTo.value === item.name),
         when: inputDateDepart.value,
     };
-    
-    const requestData = `${proxy}${calendar}?depart_date=${formData.when}&origin=${formData.from}&destination=${formData.to}&one_way=true&`;
 
-    getData (requestData, (response) => {
-        renderCheap (response, formData.when);
-    });
+    if (formData.from && formData.to) {
+        const requestData = `${proxy}${calendar}?depart_date=${formData.when}&origin=${formData.from.code}&destination=${formData.to.code}&one_way=true&`;
+
+        getData (requestData, (response) => {
+            renderCheap (response, formData.when);
+        });
+    } else {
+        console.error('Ошибка в названии города');
+    }
 });
 
 //вызовы функций
 
 getData (proxy + citiesApi, (data) => {
     cities = (JSON.parse(data)).filter((item) => item.name);
+
+    cities.sort((a,b) => {
+        if (a.name > b.name) {return 1;}
+        if (a.name < b.name) {return -1;}
+        return 0;
+    });
 });
 
 
